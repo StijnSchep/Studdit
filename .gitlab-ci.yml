@@ -1,0 +1,28 @@
+image: node:latest
+
+stages:
+  - testing
+  - production
+
+testing:
+  type: testing
+  stage: testing
+  variables:
+    NODE_ENV: development
+  before_script:
+    - npm install --no-optional
+    - npm install -g mocha
+  script:
+    - mocha --exit "**/*spec.js" --timeout 10000
+
+production:
+  type: deploy
+  stage: production
+  image: ruby:latest
+  script:
+    - apt-get update -qy
+    - apt-get install -y ruby-dev
+    - gem install dpl
+    - dpl --provider=heroku --app=$HEROKU_APP_NAME --api-key=$HEROKU_API_KEY
+  only:
+    - master
